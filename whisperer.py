@@ -6,7 +6,7 @@ import wave
 import os
 
 # Load the Whisper model
-model = whisper.load_model("large-v3")  # Use "tiny", "base", "small", "medium", or "large"
+model = whisper.load_model("large-v3-turbo")  # Use "tiny", "base", "small", "medium", or "large"
 
 # Function to record audio from the microphone
 def record_audio(duration=5, sample_rate=16000, device=None):
