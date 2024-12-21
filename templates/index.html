@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      #chatbox {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .message {
+        margin: 10px 0;
+      }
+      .user {
+        text-align: right;
+      }
+      .assistant {
+        text-align: left;
+        color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chatbox">
+      <div id="messages"></div>
+      <textarea
+        id="userInput"
+        rows="3"
+        placeholder="Type your message here..."
+      ></textarea
+      ><br />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+      async function sendMessage() {
+        const userInput = document.getElementById("userInput").value;
+        if (!userInput) return;
+
+        // Append the user input to the chatbox
+        const messagesDiv = document.getElementById("messages");
+        messagesDiv.innerHTML += `<div class="message user">${userInput}</div>`;
+        document.getElementById("userInput").value = "";
+
+        // Send the message to the Flask backend
+        try {
+          const response = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: userInput }),
+          });
+          const data = await response.json();
+
+          // Display the assistant's response
+          if (data.response) {
+            messagesDiv.innerHTML += `<div class="message assistant">${data.response}</div>`;
+          } else if (data.error) {
+            messagesDiv.innerHTML += `<div class="message assistant">Error: ${data.error}</div>`;
+          }
+        } catch (error) {
+          messagesDiv.innerHTML += `<div class="message assistant">Error: ${error.message}</div>`;
+        }
+      }
+    </script>
+  </body>
+</html>
