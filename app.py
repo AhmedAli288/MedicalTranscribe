@@ -1,11 +1,28 @@
 from flask import Flask, request, jsonify, render_template
-from huggingface_hub import InferenceClient
+from flask_cors import CORS
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access variables from the .env file
+API_KEY = os.getenv("HUGGINGFACE_API_KEY")
+
+if not API_KEY:
+    raise ValueError("API key is missing. Please add it to your .env file.")
+
+# Initialize OpenAI Hugging Face client
+client = OpenAI(
+    base_url="https://api-inference.huggingface.co/v1/",
+    api_key=API_KEY
+)
 
 app = Flask(__name__)
 
-# Initialize Hugging Face Inference Client
-API_KEY = "hf_your_api_key"  # Replace with your Hugging Face API key
-client = InferenceClient(api_key=API_KEY)
+# Enable CORS for the app
+CORS(app)
 
 # Serve the index.html file
 @app.route("/")
@@ -23,16 +40,16 @@ def chat():
         if not user_message:
             return jsonify({"error": "Empty message received"}), 400
 
-        # Prepare the input for LLaMA 3.3
+        # Prepare the input for the model
         messages = [
             {"role": "user", "content": user_message}
         ]
 
         # Call Hugging Face API to generate a response
         completion = client.chat.completions.create(
-            model="meta-llama/Llama-3.3-70B-Instruct", 
+            model="meta-llama/Llama-3.1-8B-Instruct",
             messages=messages,
-            max_tokens=200
+            max_tokens=500
         )
 
         # Extract the response from the model
